@@ -1,0 +1,24 @@
+# netflix-hotkeys
+
+넷플릭스 웹 플레이어 키보드 확장 (개인용, Chrome MV3).
+
+## 키
+
+- **← / →** — 5초 뒤로/앞으로 (기본 10초 동작 대체)
+- **E** — 영어 자막 토글 (이미 영어면 끔)
+- **K** — 한글 자막 토글 (이미 한글이면 끔)
+	- 같은 언어에 일반 자막·CC 둘 다 있으면 일반 자막 우선.
+	- 해당 언어 트랙이 없는 작품이면 무시.
+- 나머지 키(Space·Enter·F·M 등)는 넷플릭스 기본 그대로.
+
+## 설치
+
+1. `chrome://extensions` → 우측 상단 **개발자 모드** 켜기
+2. **"압축해제된 확장 프로그램을 로드"** → 이 폴더 선택
+3. 코드 수정 후엔 확장 카드의 새로고침 아이콘 → 넷플릭스 탭 새로고침
+
+## 구조
+
+- `manifest.json` — netflix.com에 content script 등록 (`world: MAIN`, `document_start`)
+- `netflix-hotkeys.js` — window capture keydown + 넷플릭스 내부 플레이어 API로 seek·자막 전환
+	- 내부 API는 비공식 — 넷플릭스 업데이트로 깨질 수 있고, 그 경우 조용히 기본 동작으로 돌아간다.

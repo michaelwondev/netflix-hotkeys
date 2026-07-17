@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Netflix Hotkeys",
+  "version": "1.0.0",
+  "description": "Netflix: arrow keys seek 5s, E/K toggle English/Korean subtitles",
+  "content_scripts": [
+    {
+      "matches": ["https://www.netflix.com/*"],
+      "js": ["netflix-hotkeys.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
+}
