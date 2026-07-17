@@ -25,13 +25,17 @@ function seek(player, deltaMs) {
 // Off 트랙은 언어 코드(bcp47)가 없다.
 const isOffTrack = (track) => !track || !track.bcp47;
 
+function setSubtitlesOff(player) {
+  const off = (player.getTimedTextTrackList() || []).find(isOffTrack);
+  if (off) player.setTimedTextTrack(off);
+}
+
 // 같은 언어가 이미 켜져 있으면 끄고, 아니면 그 언어로 켠다. CC보다 일반 자막 우선.
 function toggleSubtitles(player, lang) {
   const tracks = player.getTimedTextTrackList() || [];
   const matches = (track) => !isOffTrack(track) && track.bcp47.startsWith(lang);
   if (matches(player.getTimedTextTrack())) {
-    const off = tracks.find(isOffTrack);
-    if (off) player.setTimedTextTrack(off);
+    setSubtitlesOff(player);
   } else {
     const candidates = tracks.filter(matches);
     const plain = candidates.find((t) => !/\bCC\b|closed caption/i.test(t.displayName || ''));
@@ -47,7 +51,7 @@ window.addEventListener(
   (e) => {
     const code = e.code;
     const isArrow = code === 'ArrowLeft' || code === 'ArrowRight';
-    if (!isArrow && !(code in SUBTITLE_CODES)) return;
+    if (!isArrow && code !== 'Backspace' && !(code in SUBTITLE_CODES)) return;
     if (!location.pathname.startsWith('/watch')) return;
     if (e.altKey || e.ctrlKey || e.metaKey) return;
     if (e.shiftKey && !isArrow) return;
@@ -60,6 +64,8 @@ window.addEventListener(
     if (isArrow) {
       const step = e.shiftKey ? SEEK_LONG_MS : SEEK_MS;
       seek(player, code === 'ArrowRight' ? step : -step);
+    } else if (code === 'Backspace') {
+      setSubtitlesOff(player);
     } else {
       toggleSubtitles(player, SUBTITLE_CODES[code]);
     }
