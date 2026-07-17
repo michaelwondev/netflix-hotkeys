@@ -1,6 +1,7 @@
 'use strict';
 
 const SEEK_MS = 5000;
+const SEEK_LONG_MS = 10000; // Shift+화살표
 const SUBTITLE_KEYS = { e: 'en', k: 'ko' };
 
 // 넷플릭스 내부 플레이어 API — 비공식이라 못 찾으면 null을 리턴하고 기본 동작에 맡긴다.
@@ -44,17 +45,23 @@ window.addEventListener(
   'keydown',
   (e) => {
     const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-    if (key !== 'ArrowLeft' && key !== 'ArrowRight' && !(key in SUBTITLE_KEYS)) return;
+    const isArrow = key === 'ArrowLeft' || key === 'ArrowRight';
+    if (!isArrow && !(key in SUBTITLE_KEYS)) return;
     if (!location.pathname.startsWith('/watch')) return;
-    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.shiftKey && !isArrow) return;
     const t = e.target;
     if (t instanceof Element && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
     const player = getPlayer();
     if (!player) return;
     e.preventDefault();
     e.stopImmediatePropagation();
-    if (key in SUBTITLE_KEYS) toggleSubtitles(player, SUBTITLE_KEYS[key]);
-    else seek(player, key === 'ArrowRight' ? SEEK_MS : -SEEK_MS);
+    if (isArrow) {
+      const step = e.shiftKey ? SEEK_LONG_MS : SEEK_MS;
+      seek(player, key === 'ArrowRight' ? step : -step);
+    } else {
+      toggleSubtitles(player, SUBTITLE_KEYS[key]);
+    }
   },
   true
 );
