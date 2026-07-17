@@ -2,7 +2,8 @@
 
 const SEEK_MS = 5000;
 const SEEK_LONG_MS = 10000; // Shift+화살표
-const SUBTITLE_KEYS = { e: 'en', k: 'ko' };
+// e.code(물리 키 위치) 기준 — 한/영 입력 상태와 무관하게 같은 키가 동작한다.
+const SUBTITLE_CODES = { KeyE: 'en', KeyK: 'ko' };
 
 // 넷플릭스 내부 플레이어 API — 비공식이라 못 찾으면 null을 리턴하고 기본 동작에 맡긴다.
 function getPlayer() {
@@ -44,9 +45,9 @@ function toggleSubtitles(player, lang) {
 window.addEventListener(
   'keydown',
   (e) => {
-    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-    const isArrow = key === 'ArrowLeft' || key === 'ArrowRight';
-    if (!isArrow && !(key in SUBTITLE_KEYS)) return;
+    const code = e.code;
+    const isArrow = code === 'ArrowLeft' || code === 'ArrowRight';
+    if (!isArrow && !(code in SUBTITLE_CODES)) return;
     if (!location.pathname.startsWith('/watch')) return;
     if (e.altKey || e.ctrlKey || e.metaKey) return;
     if (e.shiftKey && !isArrow) return;
@@ -58,9 +59,9 @@ window.addEventListener(
     e.stopImmediatePropagation();
     if (isArrow) {
       const step = e.shiftKey ? SEEK_LONG_MS : SEEK_MS;
-      seek(player, key === 'ArrowRight' ? step : -step);
+      seek(player, code === 'ArrowRight' ? step : -step);
     } else {
-      toggleSubtitles(player, SUBTITLE_KEYS[key]);
+      toggleSubtitles(player, SUBTITLE_CODES[code]);
     }
   },
   true
